@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class GameLoop {
     private GameBoard board;
-    private Agent agent;
+    private Agent agent = new Agent();
     private boolean running = true;
     private boolean isPlayerTurn = true;
     private Random rnd = new Random();
