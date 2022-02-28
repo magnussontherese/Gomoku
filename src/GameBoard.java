@@ -23,8 +23,6 @@ public class GameBoard {
      }
 
 
-
-
     public void print() {
         System.out.println("GameBoard: ");
         for (int i = 0; i < dimentions; i++) {
