@@ -1,8 +1,9 @@
 public class GameBoard {
-    private int dimentions;
+    private final int dimentions;
     private char[][] content;
 
-    //Pleade observe, the board counts from 0...di in both dimentions
+
+//Pleade observe, the board counts from 0...di in both dimentions
 
     public GameBoard(int d) {
         this.dimentions = d;
@@ -40,9 +41,13 @@ public class GameBoard {
         content[x][y] = playerBrick;
     }
 
-    public void evaluate() {
+    public void evaluateWin() {
         char player = 'x';
         char agent = 'o';
 
+    }
+
+    public int getDimentions() {
+        return dimentions;
     }
 }
