@@ -2,6 +2,8 @@ public class GameBoard {
     private int dimentions;
     private char[][] content;
 
+    //Pleade observe, the board counts from 0...di in both dimentions
+
     public GameBoard(int d) {
         this.dimentions = d;
         content = new char [d][d];
