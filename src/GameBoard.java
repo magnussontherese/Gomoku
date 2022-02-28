@@ -41,5 +41,8 @@ public class GameBoard {
     }
 
     public void evaluate() {
+        char player = 'x';
+        char agent = 'o';
+
     }
 }

@@ -30,9 +30,6 @@ public class GameLoop {
         }
     }
 
-    private void evaluate() {
-    }
-
     private void computerPlay()  {
         System.out.println("ComputerPlaying...");
         try {
