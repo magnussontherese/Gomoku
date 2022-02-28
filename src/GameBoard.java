@@ -1,8 +1,6 @@
 public class GameBoard {
     private final int dimentions;
     private char[][] content;
-
-
 //Pleade observe, the board counts from 0...di in both dimentions
 
     public GameBoard(int d) {
@@ -10,6 +8,11 @@ public class GameBoard {
         content = new char [d][d];
         initialise();
     }
+
+    public GameBoard() {
+        this(5);
+    }
+
 
     private void initialise() {
         for (int i = 0; i < dimentions; i++) {
@@ -19,9 +22,6 @@ public class GameBoard {
         }
      }
 
-    public GameBoard() {
-        this(5);
-    }
 
 
 

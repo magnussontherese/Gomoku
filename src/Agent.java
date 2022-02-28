@@ -1,6 +1,11 @@
 import java.util.Random;
 
 public class Agent {
+    private String tenPoints = "ooooo";
+    private String sevenPoints = "oooo";
+    private String fivePoints = "ooo";
+    private String threePoints = "oo";
+    private String onePoint = "o";
 
     //Shpould implement minmax algoritm with some heuristic and also pruning
     public void evaluateAndMove(GameBoard board) {
