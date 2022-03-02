@@ -4,19 +4,19 @@ public class Agent {
     MiniMaxAssistant miniMaxAssistant;
 
     //Shpould implement minmax algoritm with some heuristic and also pruning
-    public GameCoordinate evaluateAndMove(GameBoard board) {
+    public GameCoordinate move(GameBoard board) {
         System.out.println("ComputerPlaying...");
-
         try {
             Thread.currentThread().sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return makeMove(board);
+        return evaluateAndMakeBestMove(board);
         //board.placeBrick(chosen[0], chosen[1], 'o');
     }
 
-    private GameCoordinate makeMove(GameBoard board) {
+    private GameCoordinate evaluateAndMakeBestMove(GameBoard board) {
+        GameCoordinate bestMove = miniMaxAssistant.evaluateBoardReturnBestMove(board);
         GameCoordinate randomMove = getRandomMove(board);
         return board.placeBrick(randomMove, 'o');
     }

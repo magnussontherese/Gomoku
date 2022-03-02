@@ -41,7 +41,7 @@ public class GameLoop {
 
     private GameCoordinate computerPlay()  {
         isPlayerTurn = true;
-        return agent.evaluateAndMove(board); //The responability passed to agent, should make a competative move
+        return agent.move(board); //The responability passed to agent, should make a competative move
     }
 
     private GameCoordinate makeMove(String playerMove) {

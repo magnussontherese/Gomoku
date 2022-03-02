@@ -2,6 +2,8 @@ public class WinController {
 
     //The control to check a win is managed from a recent move.
     //Therefore we will only check the GameCoordinates of interest for the win.
+
+    //Göra denna för större spelplaner infomration vi har att tillgå är
     private final GameBoard gameBoard;
 
     public WinController(GameBoard gameBoard) {

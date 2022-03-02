@@ -1,3 +1,5 @@
+import java.util.HashSet;
+
 public class GameBoard {
     private final int dimentions;
     private GameCoordinate[][] content;
@@ -55,6 +57,18 @@ public class GameBoard {
 
     public GameCoordinate[][] getContent() {
         return content;
+    }
+
+    public HashSet<GameCoordinate> getEmpties() {
+        HashSet<GameCoordinate> empty = new HashSet<>();
+        for (int i = 0; i < dimentions; i++) {
+            for (int j = 0; i < dimentions; j++) {
+                if (!content[i][j].isOccupied()) {
+                    empty.add(content[i][j]);
+                }
+            }
+        }
+        return empty;
     }
 
 }
