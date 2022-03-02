@@ -2,6 +2,7 @@ import java.util.Scanner;
 
 public class GameLoop {
     private GameBoard board;
+    private WinController winController;
     private Agent agent = new Agent();
     private boolean running = true;
     private boolean isPlayerTurn = true;
@@ -12,24 +13,21 @@ public class GameLoop {
         System.out.println("Welcome to the komoku board game! Please select your dimension (>= 5)");
         int dim = in.nextInt();
         board = new GameBoard(dim);
+        winController = new WinController(board);
         while (running) {
+            GameCoordinate move;
             if (isPlayerTurn) {
                 String moveString = collectPlayerMove(in);
-                GameCoordinate move = makeMove(moveString);
-                    if (board.checkWin(move,'x')){
-                    System.out.println("x is the winner");
-                    board.print();
-                    break;
-                }
+                move = makeMove(moveString);
             } else {
-                GameCoordinate move = computerPlay();
-                if (board.checkWin(move, 'o')){
-                    System.out.println("o is the winner");
-                    board.print();
-                    break;
-                }
+                move = computerPlay();
             }
             board.print();
+            char winner = winController.checkWin(move);
+            if(winner != Character.MIN_VALUE) {
+                System.out.println(winner + " is the winner");
+                break;
+            }
         }
     }
 
