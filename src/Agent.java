@@ -1,11 +1,7 @@
 import java.util.Random;
 
 public class Agent {
-    private String tenPoints = "ooooo";
-    private String sevenPoints = "oooo";
-    private String fivePoints = "ooo";
-    private String threePoints = "oo";
-    private String onePoint = "o";
+    MiniMaxAssistant miniMaxAssistant;
 
     //Shpould implement minmax algoritm with some heuristic and also pruning
     public void evaluateAndMove(GameBoard board) {
@@ -19,12 +15,10 @@ public class Agent {
         }
         int x = rnd.nextInt(board.getDimentions());
         int y = rnd.nextInt(board.getDimentions());
-        int [] chosen = evaluateBoard(board);
+        int [] chosen = miniMaxAssistant.evaluateBoard(board);
         board.placeBrick(x, y, 'o');
         //board.placeBrick(chosen[0], chosen[1], 'o');
     }
 
-    private int[] evaluateBoard(GameBoard board) {
-        return null;
-    }
+
 }
