@@ -6,6 +6,7 @@ public class GameLoop {
     private boolean running = true;
     private boolean isPlayerTurn = true;
 
+
     public void run(){
         Scanner in = new Scanner(System.in);
         System.out.println("Welcome to the komoku board game! Please select your dimension (>= 5)");
@@ -13,32 +14,43 @@ public class GameLoop {
         board = new GameBoard(dim);
         while (running) {
             if (isPlayerTurn) {
-                playerPlay(in);
+                String moveString = collectPlayerMove(in);
+                GameCoordinate move = makeMove(moveString);
+                    if (board.checkWin(move,'x')){
+                    System.out.println("x is the winner");
+                    board.print();
+                    break;
+                }
             } else {
-                computerPlay();
+                GameCoordinate move = computerPlay();
+                if (board.checkWin(move, 'o')){
+                    System.out.println("o is the winner");
+                    board.print();
+                    break;
+                }
             }
             board.print();
-            board.evaluateWin();
         }
     }
 
-    private void playerPlay(Scanner in) {
+    private String collectPlayerMove(Scanner in) {
         System.out.println("Place your brick (x, y)");
         String playerMove = "";
-        playerMove = in.next(); //We are always thinking that the player chooses a free space and correct values :)
-        makeMove(playerMove);
+        playerMove = in.next(); //We are always thinking that the human player chooses a free space and correct values :)
         isPlayerTurn = false;
+        return playerMove;
     }
 
-    private void computerPlay()  {
-        agent.evaluateAndMove(board); //The responability passed to agent, should make a competative move
+    private GameCoordinate computerPlay()  {
         isPlayerTurn = true;
+        return agent.evaluateAndMove(board); //The responability passed to agent, should make a competative move
     }
 
-    private void makeMove(String playerMove) {
+    private GameCoordinate makeMove(String playerMove) {
         String[] chopped = playerMove.split(",");
         int x = Integer.parseInt(chopped[0]);
         int y = Integer.parseInt(chopped[1]);
-        board.placeBrick(x, y, 'x');
+        GameCoordinate move = board.getCoordinate(x, y);
+        return board.placeBrick(move, 'x');
     }
 }

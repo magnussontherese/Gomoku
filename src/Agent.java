@@ -4,8 +4,7 @@ public class Agent {
     MiniMaxAssistant miniMaxAssistant;
 
     //Shpould implement minmax algoritm with some heuristic and also pruning
-    public void evaluateAndMove(GameBoard board) {
-        Random rnd = new Random();
+    public GameCoordinate evaluateAndMove(GameBoard board) {
         System.out.println("ComputerPlaying...");
 
         try {
@@ -13,11 +12,27 @@ public class Agent {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return makeMove(board);
+        //board.placeBrick(chosen[0], chosen[1], 'o');
+    }
+
+    private GameCoordinate makeMove(GameBoard board) {
+        GameCoordinate randomMove = getRandomMove(board);
+        return board.placeBrick(randomMove, 'o');
+    }
+
+    private GameCoordinate getRandomMove(GameBoard board) {
+        Random rnd = new Random();
         int x = rnd.nextInt(board.getDimentions());
         int y = rnd.nextInt(board.getDimentions());
-        int [] chosen = miniMaxAssistant.evaluateBoard(board);
-        board.placeBrick(x, y, 'o');
-        //board.placeBrick(chosen[0], chosen[1], 'o');
+        GameCoordinate current = board.getCoordinate(x,y);
+
+        while (current.isOccupied()) {
+             x = rnd.nextInt(board.getDimentions());
+             y = rnd.nextInt(board.getDimentions());
+             current = board.getCoordinate(x,y);
+        }
+        return current;
     }
 
 
