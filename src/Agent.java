@@ -16,7 +16,7 @@ public class Agent {
     }
 
     private GameCoordinate evaluateAndMakeBestMove(GameBoard board) {
-        GameCoordinate bestMove = miniMaxAssistant.evaluateBoardReturnBestMove(board);
+        //GameCoordinate bestMove = miniMaxAssistant.evaluateBoardReturnBestMove(board);
         GameCoordinate randomMove = getRandomMove(board);
         return board.placeBrick(randomMove, 'o');
     }

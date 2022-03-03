@@ -1,9 +1,8 @@
 public class WinController {
 
     //The control to check a win is managed from a recent move.
-    //Therefore we will only check the GameCoordinates of interest for the win.
+    //Therefore we will only check the GameCoordinates of interest for the win, the coordinates related "for a win" to the current move
 
-    //Göra denna för större spelplaner infomration vi har att tillgå är
     private final GameBoard gameBoard;
 
     public WinController(GameBoard gameBoard) {
@@ -16,15 +15,15 @@ public class WinController {
         if (checkRowWin(move)) return move.getOwner();
         if (checkDiagonalWin(move)) return move.getOwner();
         if (checkAntiDiagonalWin(move)) return move.getOwner();
-        return Character.MIN_VALUE;
+        return Character.MIN_VALUE; //If there is no win, there is no winner, representet by the character minvalue
     }
 
     boolean checkAntiDiagonalWin(GameCoordinate move) {
         if (move.getX() + move.getY() == gameBoard.getDimentions() - 1) {
             for (int i = 0; i < gameBoard.getDimentions(); i++) {
                 if (gameBoard.getContent()[i][(gameBoard.getDimentions() - 1) - i].getOwner() != move.getOwner())
-                    break;
-                if (i == gameBoard.getDimentions() - 1) {
+                    break; //The loops breaks whenever i encounter the other player in the "winner" sequence
+                if (i == gameBoard.getWincount() - 1) {
                     return true;
                 }
             }
@@ -38,7 +37,7 @@ public class WinController {
             for (int i = 0; i < gameBoard.getDimentions(); i++) {
                 if (gameBoard.getContent()[i][i].getOwner() != move.getOwner())
                     break;
-                if (i == gameBoard.getDimentions() - 1) {
+                if (i == gameBoard.getWincount() - 1) {
                     return true;
                 }
             }
@@ -50,7 +49,7 @@ public class WinController {
         for (int i = 0; i < gameBoard.getDimentions(); i++) {
             if (gameBoard.getContent()[i][move.getY()].getOwner() != move.getOwner())
                 break;
-            if (i == gameBoard.getDimentions() - 1) {
+            if (i == gameBoard.getWincount()- 1) {
                 return true;
             }
         }
@@ -61,7 +60,7 @@ public class WinController {
         for (int i = 0; i < gameBoard.getDimentions(); i++) {
             if (gameBoard.getContent()[move.getX()][i].getOwner() != move.getOwner())
                 break;
-            if (i == gameBoard.getDimentions() - 1) {
+            if (i == gameBoard.getWincount() - 1) {
                 return true;
             }
         }

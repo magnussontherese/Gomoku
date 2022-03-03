@@ -2,12 +2,23 @@ import java.util.HashSet;
 
 public class GameBoard {
     private final int dimentions;
+    private int wincount;
     private GameCoordinate[][] content;
 
-//Pleade observe, the board counts from 0...di in both dimentions
+//Please observe, the board counts from 0...di in both dimentions
+//The wincount represent the number of owned coordinates in a row that is needed to win.
+
 
     public GameBoard(int d) {
         this.dimentions = d;
+        this.wincount = d;
+        content = new GameCoordinate[d][d];
+        initialise();
+    }
+
+    public GameBoard(int d, int wincount) {
+        this.dimentions = d;
+        this.wincount = wincount;
         content = new GameCoordinate[d][d];
         initialise();
     }
@@ -16,7 +27,6 @@ public class GameBoard {
         this(5);
     }
 
-
     private void initialise() {
         for (int i = 0; i < dimentions; i++) {
             for (int j = 0; j < dimentions; j++) {
@@ -24,7 +34,6 @@ public class GameBoard {
             }
         }
      }
-
 
     public void print() {
         System.out.println("GameBoard: ");
@@ -38,13 +47,15 @@ public class GameBoard {
         }
     }
 
-
     public GameCoordinate placeBrick(GameCoordinate gameCoordinate, char playerBrick) {
         content[gameCoordinate.getX()][gameCoordinate.getY()] = gameCoordinate;
         gameCoordinate.setOwner(playerBrick);
         return gameCoordinate;
     }
 
+    public int getWincount() {
+        return wincount;
+    }
 
     public int getDimentions() {
         return dimentions;

@@ -12,18 +12,20 @@ public class GameLoop {
         Scanner in = new Scanner(System.in);
         System.out.println("Welcome to the komoku board game! Please select your dimension (>= 5)");
         int dim = in.nextInt();
-        board = new GameBoard(dim);
+        System.out.println("How many in a row to win?");
+        int wincount = in.nextInt();
+        board = new GameBoard(dim, wincount);
         winController = new WinController(board);
         while (running) {
-            GameCoordinate move;
+            GameCoordinate nextMove;
             if (isPlayerTurn) {
-                String moveString = collectPlayerMove(in);
-                move = makeMove(moveString);
+                String moveString = collectPlayerMove(in);//The human player makes a move
+                nextMove = makeMove(moveString);
             } else {
-                move = computerPlay();
+                nextMove = computerPlay(); //The agent will play
             }
             board.print();
-            char winner = winController.checkWin(move);
+            char winner = winController.checkWin(nextMove);
             if(winner != Character.MIN_VALUE) {
                 System.out.println(winner + " is the winner");
                 break;
