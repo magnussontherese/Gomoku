@@ -10,6 +10,7 @@ public class GameCoordinate {
         this.owner = ' ';
     }
 
+
     @Override
     public String toString() {
         return owner + "";

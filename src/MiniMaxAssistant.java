@@ -21,36 +21,38 @@ public class MiniMaxAssistant {
         //Denna loop går igenom alla för närvarande lediga plaser och försöker hitta den som genererar bäst score.
         for (GameCoordinate coordinate : board.getEmpties()) {
             if (!coordinate.isOccupied()) {
-                board.placeBrick(coordinate, 'o');
-                currentMoveScore = miniMaxSearch(board, 6, 'x', coordinate, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                board.undoMove(coordinate);
-                if (currentMoveScore > bestMoveScore) {
+                board.placeBrick(coordinate, 'o'); //Lägger ett move
+                currentMoveScore = miniMaxSearch(board, 6, true, coordinate, Integer.MAX_VALUE, Integer.MIN_VALUE); //Får ett score av det movet
+                board.undoMove(coordinate); //Tar bort dummymovet
+                if (currentMoveScore > bestMoveScore) { //Kontrollerar om ett annat move skulle vara bättre
                     bestMoveScore = currentMoveScore;
                     bestMove = coordinate;
                 }
+
             }
         }
 
         //Skriver ut hur många försök miniMax krävde för att göra ett val -- Endast för testning
         System.out.println("MiniMax took " + counter + " tries");
         counter = 0;
+        System.out.println("The score chosen was: " + bestMoveScore);
         return bestMove;
     }
 
     //Simulates a game through a ceartain depth, has it's starting point in a actual move
-    private double miniMaxSearch(GameBoard board, int depth, char player, GameCoordinate prevMove, double alpha, double beta) {
+    //Will then take times, always counting on that the human will make the "perfect" move
+    private double miniMaxSearch(GameBoard board, int depth, boolean isMaximizing, GameCoordinate prevMove, double alpha, double beta) {
         counter ++;
         HashSet<GameCoordinate> available = board.getEmpties();
-
-        if (depth == 0 || available.size() == 0) { //We have reached the leafnodes, we can decide a win, stop codiditon for recursion
-            return controller.boardScore(player);
+        if (depth == 0 || available.size() == 0) { //We have reached the specified depth, we can decide a win, stop codiditon for recursion
+            return controller.evaluateBoardForUser(!isMaximizing);
         }
         double bestScore;
-        if (player == 'o') {
+        if (isMaximizing) {
             bestScore = Integer.MIN_VALUE;
             for (GameCoordinate ava : available) {
-                board.placeBrick(ava, player);
-                double currentScore = miniMaxSearch(board, depth - 1, 'x', ava, alpha, beta);
+                board.placeBrick(ava, 'o');
+                double currentScore = miniMaxSearch(board, depth - 1, false, ava, alpha, beta);
                 board.undoMove(ava);
                 bestScore = Math.max(currentScore, bestScore);
                 alpha = Math.max(alpha, bestScore);
@@ -62,7 +64,7 @@ public class MiniMaxAssistant {
             bestScore = Integer.MAX_VALUE;
             for (GameCoordinate  ava: available) {
                     board.placeBrick(ava, 'x');
-                    double currentScore = miniMaxSearch(board, depth -1, 'o', ava, alpha, beta);
+                    double currentScore = miniMaxSearch(board, depth -1, true, ava, alpha, beta);
                     board.undoMove(ava);
                     bestScore = Math.min(currentScore, bestScore);
                     beta = Math.min(beta, bestScore);
@@ -70,7 +72,7 @@ public class MiniMaxAssistant {
                         return bestScore;
                     }
                 }
-            }
+        }
         return bestScore;
     }
 
