@@ -1,11 +1,9 @@
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class GameLoop {
     private GameBoard board;
-    private WinController winController;
-    private Agent agent = new Agent();
+    private ScoreController winController;
+    private Agent agent;
     private boolean running = true;
     private boolean isPlayerTurn = true;
 
@@ -17,7 +15,8 @@ public class GameLoop {
         System.out.println("How many in a row to win?");
         int wincount = in.nextInt();
         board = new GameBoard(dim, wincount);
-        winController = new WinController(board);
+        agent = new Agent(board);
+        winController = new ScoreController(board);
         while (running && board.getEmpties().size() != 0) {
             GameCoordinate nextMove;
             if (isPlayerTurn) {

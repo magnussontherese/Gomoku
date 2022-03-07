@@ -1,28 +1,28 @@
-import java.util.Set;
+import java.util.HashSet;
 
 public class MiniMaxAssistant {
-    WinController controller;
+    ScoreController controller;
 
     private int counter = 0; //Räknare för testning av antal "varv" i miniMax
 
+    public MiniMaxAssistant(GameBoard board) {
+        controller = new ScoreController(board);
+    }
 
     public GameCoordinate evaluateBoardReturnBestMove(GameBoard board) {
-        controller = new WinController(board);
         return getBestMove(board);
     }
 
-
-
     private GameCoordinate getBestMove(GameBoard board) {
-        int currentMoveScore;
-        int bestMoveScore = Integer.MIN_VALUE;
+        double currentMoveScore;
+        double bestMoveScore = 0;
         GameCoordinate bestMove = null;
 
         //Denna loop går igenom alla för närvarande lediga plaser och försöker hitta den som genererar bäst score.
         for (GameCoordinate coordinate : board.getEmpties()) {
             if (!coordinate.isOccupied()) {
                 board.placeBrick(coordinate, 'o');
-                currentMoveScore = miniMax(board, 0, false, coordinate, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                currentMoveScore = miniMaxSearch(board, 6, 'x', coordinate, Integer.MIN_VALUE, Integer.MAX_VALUE);
                 board.undoMove(coordinate);
                 if (currentMoveScore > bestMoveScore) {
                     bestMoveScore = currentMoveScore;
@@ -34,16 +34,50 @@ public class MiniMaxAssistant {
         //Skriver ut hur många försök miniMax krävde för att göra ett val -- Endast för testning
         System.out.println("MiniMax took " + counter + " tries");
         counter = 0;
-
         return bestMove;
+    }
+
+    //Simulates a game through a ceartain depth, has it's starting point in a actual move
+    private double miniMaxSearch(GameBoard board, int depth, char player, GameCoordinate prevMove, double alpha, double beta) {
+        counter ++;
+        HashSet<GameCoordinate> available = board.getEmpties();
+
+        if (depth == 0 || available.size() == 0) { //We have reached the leafnodes, we can decide a win, stop codiditon for recursion
+            return controller.boardScore(player);
+        }
+        double bestScore;
+        if (player == 'o') {
+            bestScore = Integer.MIN_VALUE;
+            for (GameCoordinate ava : available) {
+                board.placeBrick(ava, player);
+                double currentScore = miniMaxSearch(board, depth - 1, 'x', ava, alpha, beta);
+                board.undoMove(ava);
+                bestScore = Math.max(currentScore, bestScore);
+                alpha = Math.max(alpha, bestScore);
+                if (alpha >= beta) {
+                    return bestScore;
+                }
+            }
+        } else {
+            bestScore = Integer.MAX_VALUE;
+            for (GameCoordinate  ava: available) {
+                    board.placeBrick(ava, 'x');
+                    double currentScore = miniMaxSearch(board, depth -1, 'o', ava, alpha, beta);
+                    board.undoMove(ava);
+                    bestScore = Math.min(currentScore, bestScore);
+                    beta = Math.min(beta, bestScore);
+                    if (beta <= alpha) {
+                        return bestScore;
+                    }
+                }
+            }
+        return bestScore;
     }
 
 
     //Denna metod ska simuelera drag och generea värde för ett drag, denna kommer antagligen att vara rekursiv.
     private int miniMax(GameBoard board, int depth, boolean isMaximizing, GameCoordinate previousMove, int alpha, int beta) {
         counter ++;
-
-
 //        System.out.println("Start of miniMax... \nDepth: " + depth);
         int winner = controller.checkWin2(previousMove, depth);
         if (winner != Integer.MIN_VALUE) {

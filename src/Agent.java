@@ -1,7 +1,10 @@
 import java.util.Random;
 
 public class Agent {
-    MiniMaxAssistant miniMaxAssistant = new MiniMaxAssistant();
+    private MiniMaxAssistant miniMaxAssistant;
+    public Agent(GameBoard board) {
+        this.miniMaxAssistant = new MiniMaxAssistant(board);
+    }
 
     //Shpould implement minmax algoritm with some heuristic and also pruning
     public GameCoordinate move(GameBoard board) {
