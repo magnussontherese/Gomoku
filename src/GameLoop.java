@@ -1,3 +1,5 @@
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class GameLoop {
@@ -16,13 +18,16 @@ public class GameLoop {
         int wincount = in.nextInt();
         board = new GameBoard(dim, wincount);
         winController = new WinController(board);
-        while (running) {
+        while (running && board.getEmpties().size() != 0) {
             GameCoordinate nextMove;
             if (isPlayerTurn) {
                 String moveString = collectPlayerMove(in);//The human player makes a move
                 nextMove = makeMove(moveString);
             } else {
+                long startTime = System.currentTimeMillis();
                 nextMove = computerPlay(); //The agent will play
+                long endTime = System.currentTimeMillis();
+                System.out.println("Finding best move took: " + (endTime - startTime) + " milliseconds");
             }
             board.print();
             char winner = winController.checkWin(nextMove);
@@ -30,6 +35,9 @@ public class GameLoop {
                 System.out.println(winner + " is the winner");
                 break;
             }
+        }
+        if (board.getEmpties().size() == 0) {
+            System.out.println("It's a tie");
         }
     }
 

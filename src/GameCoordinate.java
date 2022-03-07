@@ -7,6 +7,7 @@ public class GameCoordinate {
     public GameCoordinate(int x, int y) {
         this.x = x;
         this.y = y;
+        this.owner = ' ';
     }
 
     @Override
@@ -17,6 +18,11 @@ public class GameCoordinate {
     public void setOwner(char owner) {
         this.owner = owner;
         this.isOccupied = true;
+    }
+
+    public void removeOwner() {
+        this.owner = ' ';
+        this.isOccupied = false;
     }
 
     public boolean isOccupied() {

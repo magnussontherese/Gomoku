@@ -1,7 +1,7 @@
 import java.util.HashSet;
 
 public class GameBoard {
-    private final int dimentions;
+    public final int dimension;
     private int wincount;
     private GameCoordinate[][] content;
 
@@ -10,14 +10,14 @@ public class GameBoard {
 
 
     public GameBoard(int d) {
-        this.dimentions = d;
+        this.dimension = d;
         this.wincount = d;
         content = new GameCoordinate[d][d];
         initialise();
     }
 
     public GameBoard(int d, int wincount) {
-        this.dimentions = d;
+        this.dimension = d;
         this.wincount = wincount;
         content = new GameCoordinate[d][d];
         initialise();
@@ -28,8 +28,8 @@ public class GameBoard {
     }
 
     private void initialise() {
-        for (int i = 0; i < dimentions; i++) {
-            for (int j = 0; j < dimentions; j++) {
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
                 content[i][j] = new GameCoordinate(i, j);
             }
         }
@@ -37,9 +37,9 @@ public class GameBoard {
 
     public void print() {
         System.out.println("GameBoard: ");
-        for (int i = 0; i < dimentions; i++) {
+        for (int i = 0; i < dimension; i++) {
             System.out.print("|");
-            for (int j = 0; j < dimentions; j++) {
+            for (int j = 0; j < dimension; j++) {
                 System.out.print(content[i][j]);
                 System.out.print("|");
             }
@@ -53,12 +53,16 @@ public class GameBoard {
         return gameCoordinate;
     }
 
+    public void undoMove(GameCoordinate coordinate) {
+        coordinate.removeOwner();
+    }
+
     public int getWincount() {
         return wincount;
     }
 
-    public int getDimentions() {
-        return dimentions;
+    public int getDimension() {
+        return dimension;
     }
 
     public GameCoordinate getCoordinate(int x, int y){
@@ -72,8 +76,8 @@ public class GameBoard {
 
     public HashSet<GameCoordinate> getEmpties() {
         HashSet<GameCoordinate> empty = new HashSet<>();
-        for (int i = 0; i < dimentions; i++) {
-            for (int j = 0; i < dimentions; j++) {
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
                 if (!content[i][j].isOccupied()) {
                     empty.add(content[i][j]);
                 }
@@ -81,5 +85,7 @@ public class GameBoard {
         }
         return empty;
     }
+
+
 
 }
