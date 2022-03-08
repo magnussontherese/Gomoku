@@ -10,12 +10,7 @@ public class MiniMaxAssistant {
         controller = new ScoreController(board);
     }
 
-    public GameCoordinate evaluateBoardReturnBestMove(GameBoard board) {
-        return getBestMove(board);
-    }
-
-
-    private GameCoordinate getBestMove(GameBoard board) {
+    public GameCoordinate getBestMove(GameBoard board) {
         int currentMoveScore;
         int bestMoveScore = Integer.MIN_VALUE;
         GameCoordinate bestMove = null;
@@ -23,7 +18,7 @@ public class MiniMaxAssistant {
         //Denna loop går igenom alla för närvarande lediga plaser och försöker hitta den som genererar bäst score.
             for (GameCoordinate coordinate : empties) { //These are the nodes that needs to be evaluteted
                 board.placeBrick(coordinate, 'o'); //Lägger ett move
-                currentMoveScore = miniMaxSearch(board, 6, false, coordinate, Integer.MIN_VALUE, Integer.MAX_VALUE); //Får ett score av det movet
+                currentMoveScore = miniMaxSearch(board, 6, false, Integer.MIN_VALUE, Integer.MAX_VALUE); //Får ett score av det movet
                 board.undoMove(coordinate); //Tar bort dummymovet
                 if (currentMoveScore > bestMoveScore) { //Kontrollerar om ett annat move skulle vara bättre
                         bestMoveScore = currentMoveScore;
@@ -39,7 +34,7 @@ public class MiniMaxAssistant {
 
     //Simulates a game through a ceartain depth, has it's starting point in a actual move
     //Will then take times, always counting on that the human will make the "perfect" move
-    private int miniMaxSearch(GameBoard board, int depth, boolean isMaximizing, GameCoordinate prevMove, int alpha, int beta) {
+    public int miniMaxSearch(GameBoard board, int depth, boolean isMaximizing, int alpha, int beta) {
         counter ++;
         HashSet<GameCoordinate> available = board.getEmpties();
         if (depth == 0 || available.size() == 0) {
@@ -50,7 +45,7 @@ public class MiniMaxAssistant {
             bestScore = Integer.MIN_VALUE;
             for (GameCoordinate aFreeSpot : available) {
                 board.placeBrick(aFreeSpot, 'o');
-                int currentScore = miniMaxSearch(board, depth - 1, false, aFreeSpot, alpha, beta);
+                int currentScore = miniMaxSearch(board, depth - 1, false, alpha, beta);
                 board.undoMove(aFreeSpot);
                 bestScore = Math.max(currentScore, bestScore);
                 alpha = Math.max(alpha, bestScore);
@@ -62,7 +57,7 @@ public class MiniMaxAssistant {
             bestScore = Integer.MAX_VALUE;
             for (GameCoordinate  aFreeSpot: available) {
                     board.placeBrick(aFreeSpot, 'x');
-                    int currentScore = miniMaxSearch(board, depth - 1, true, aFreeSpot, alpha, beta);
+                    int currentScore = miniMaxSearch(board, depth - 1, true, alpha, beta);
                     board.undoMove(aFreeSpot);
                     bestScore = Math.min(currentScore, bestScore);
                     beta = Math.min(beta, bestScore);
@@ -87,7 +82,6 @@ public class MiniMaxAssistant {
         }
         return current;
     }
-
 
 
 }

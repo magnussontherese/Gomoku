@@ -1,23 +1,37 @@
+import java.util.HashSet;
 import java.util.Random;
 
 public class Agent {
     private MiniMaxAssistant miniMaxAssistant;
+    private char myBrick = 'o';
+    private int depthForAgent = 6;
+
     public Agent(GameBoard board) {
         this.miniMaxAssistant = new MiniMaxAssistant(board);
     }
 
-    //Shpould implement minmax algoritm with some heuristic and also pruning
     public GameCoordinate move(GameBoard board) {
         System.out.println("ComputerPlaying...");
-
-        return evaluateAndMakeBestMove(board);
-        //board.placeBrick(chosen[0], chosen[1], 'o');
+        GameCoordinate bestMove = evaluateWithMiniMaxGetBestMove(board);
+        return board.placeBrick(bestMove, myBrick);
     }
 
-    private GameCoordinate evaluateAndMakeBestMove(GameBoard board) {
-        GameCoordinate bestMove = miniMaxAssistant.evaluateBoardReturnBestMove(board);
-//        GameCoordinate randomMove = getRandomMove(board);
-        return board.placeBrick(bestMove, 'o');
+    private GameCoordinate evaluateWithMiniMaxGetBestMove(GameBoard board) {
+        int currentMoveScore = 0;
+        int bestMoveScore = Integer.MIN_VALUE;
+        GameCoordinate bestMove = null;
+        HashSet<GameCoordinate> empties = board.getEmpties();
+        for (GameCoordinate thisCoor : empties) {
+            board.placeBrick(thisCoor, myBrick);
+            currentMoveScore = miniMaxAssistant.miniMaxSearch(board, depthForAgent, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            board.undoMove(thisCoor);
+            if (currentMoveScore > bestMoveScore) {
+                bestMoveScore = currentMoveScore;
+                bestMove = thisCoor;
+            }
+        }
+
+        return bestMove;
     }
 
     private GameCoordinate getRandomMove(GameBoard board) {

@@ -64,12 +64,12 @@ public class ScoreController {
         //Det kan vara en diagonal, antidiagonal, verikal eller horisontell
         int aStreakInThisArray =  0;
         int bestStreakInThisArray= 0;
-        int enemiesInThisStreak = 0;
+        int startForStreak = 0;
         for (int i = 0; i < gameCoordinates.length; i++) {
             if(gameCoordinates[i].getOwner() == player) {
                 aStreakInThisArray++;
+                startForStreak = i;
             } else if (gameCoordinates[i].isOccupied() && gameCoordinates[i].getOwner() != player && aStreakInThisArray > 0){ // Vi är öppna eller blockerade
-                enemiesInThisStreak++;
                 aStreakInThisArray = 0;
             } else {
                 aStreakInThisArray = 0;
@@ -78,23 +78,53 @@ public class ScoreController {
                 bestStreakInThisArray = aStreakInThisArray;
             }
         }
-        return scoreForThisStreakCount(bestStreakInThisArray, enemiesInThisStreak);
+        if (bestStreakInThisArray > 0) {
+            int enemies = findBlockings(gameCoordinates, bestStreakInThisArray, startForStreak, player);
+            return scoreForThisStreakCount(bestStreakInThisArray, enemies);
+        }
+        return 0;
+    }
+
+    public int findBlockings(GameCoordinate[] gameCoordinates, int bestStreakInThisArray, int startForStreak, char player) {
+        int indexBeforeFirstInStreak = startForStreak - 1;
+        int indexAfterLastInStreak = (startForStreak + bestStreakInThisArray);
+        int blockings = 0; //Blockings can be either a enemie or a wall
+        if (indexBeforeFirstInStreak < 0) { //This value will genereate indexOutOfBounds
+            blockings++; //The index before the streak is a wall, we are blocked by wall, closed end to left
+        } else {
+            if (gameCoordinates[indexBeforeFirstInStreak].isOccupied() && gameCoordinates[indexBeforeFirstInStreak].getOwner() != player) {
+                blockings++;
+            }
+        }
+        if (indexAfterLastInStreak >= gameBoard.getDimension()){ //This value will genereate indexOutOfBounds
+            blockings++;//The index after  the streak is a wall, we are blocked by wall, closed end to right
+        } else {
+            if (gameCoordinates[indexAfterLastInStreak].isOccupied() && gameCoordinates[indexAfterLastInStreak].getOwner() != player) {
+                blockings++;
+            }
+        }
+        return blockings;
     }
 
 
-    private int scoreForThisStreakCount(int bestStreakInThisArray, int enemiesInStreak) {
+    private int scoreForThisStreakCount(int bestStreakInThisArray, int blockings) {
         int leftToWin = gameBoard.getWincount() - bestStreakInThisArray;
-        if (enemiesInStreak == 0 && leftToWin == 0) {
+        if (leftToWin == 0) {
             return bestStreakInThisArray*100000;
         }
-        if (enemiesInStreak == 0 && leftToWin == 1) {
+        if (blockings == 2) { //We are closed on both sides, worthless streak
+            return 0;
+        }
+        if (leftToWin == 1) { //One blocking on four in streak means open right side or leftside
             return bestStreakInThisArray*10000;
         }
-        if (enemiesInStreak == 0 && leftToWin == 2) {
-            return bestStreakInThisArray*500;
-        }
-        if (enemiesInStreak == 0 && leftToWin == 3) {
-            return bestStreakInThisArray*10;
+
+        if (leftToWin == 2) { //One blocking on four in streak means open right side or leftside
+            if (blockings == 1){
+                return bestStreakInThisArray*500;
+            } else {
+                return bestStreakInThisArray*1000;
+            }
         }
         return bestStreakInThisArray;
     }

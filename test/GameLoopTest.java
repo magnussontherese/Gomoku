@@ -297,6 +297,82 @@ class GameLoopTest {
         assertEquals(-10, boardScore);
     }
 
+    @Test
+    public void assertFindBlockingsForTwoBlockersOneIsWall() {
+        GameBoard gb = new GameBoard(5);
+        ScoreController sc = new ScoreController(gb);
+        GameCoordinate [] array = new GameCoordinate[gb.getDimension()];
+        array[0] =new GameCoordinate(0,0, 'o');
+        array[1] =new GameCoordinate(0,1, 'o');
+        array[2] =new GameCoordinate(0,2, 'x');
+        array[3] =new GameCoordinate(0,3 );
+        array[4] =new GameCoordinate(0,4 );
+
+
+        int blocks = sc.findBlockings(array, 2, 0 , 'o');
+        assertEquals(2, blocks);
+    }
+
+    @Test
+    public void assertFindBlockingsForBlockersOneIsWall() {
+        GameBoard gb = new GameBoard(5);
+        ScoreController sc = new ScoreController(gb);
+        GameCoordinate [] array = new GameCoordinate[gb.getDimension()];
+        array[0] =new GameCoordinate(0,0, 'o');
+        array[1] =new GameCoordinate(0,1, 'o');
+        array[2] =new GameCoordinate(0,2);
+        array[3] =new GameCoordinate(0,3 );
+        array[4] =new GameCoordinate(0,4 );
+
+
+        int blocks = sc.findBlockings(array, 2, 0 , 'o');
+        assertEquals(1, blocks);
+    }
+
+    @Test
+    public void assertFindBlockingsForBlockersNoBlocks() {
+        GameBoard gb = new GameBoard(5);
+        ScoreController sc = new ScoreController(gb);
+        GameCoordinate [] array = new GameCoordinate[gb.getDimension()];
+        array[0] =new GameCoordinate(0,0);
+        array[1] =new GameCoordinate(0,1, 'o');
+        array[2] =new GameCoordinate(0,2, 'o');
+        array[3] =new GameCoordinate(0,3 );
+        array[4] =new GameCoordinate(0,4 );
+
+
+        int blocks = sc.findBlockings(array, 2, 1 , 'o');
+        assertEquals(0, blocks);
+    }
+
+    @Test
+    public void assertFindBlockingsForBlockersBothSidesBlocks() {
+        GameBoard gb = new GameBoard(5);
+        ScoreController sc = new ScoreController(gb);
+        GameCoordinate [] array = new GameCoordinate[gb.getDimension()];
+        array[0] =new GameCoordinate(0,0, 'x');
+        array[1] =new GameCoordinate(0,1, 'o');
+        array[2] =new GameCoordinate(0,2, 'o');
+        array[3] =new GameCoordinate(0,3 , 'x');
+        array[4] =new GameCoordinate(0,4 );
+        int blocks = sc.findBlockings(array, 2, 1 , 'o');
+        assertEquals(2, blocks);
+    }
+
+    @Test
+    public void assertFindBlockingsForBlockersOnLastlocks() {
+        GameBoard gb = new GameBoard(5);
+        ScoreController sc = new ScoreController(gb);
+        GameCoordinate [] array = new GameCoordinate[gb.getDimension()];
+        array[0] =new GameCoordinate(0,0);
+        array[1] =new GameCoordinate(0,1, 'o');
+        array[2] =new GameCoordinate(0,2, 'o');
+        array[3] =new GameCoordinate(0,3 , 'o');
+        array[4] =new GameCoordinate(0,4 , 'o');
+        int blocks = sc.findBlockings(array, 4, 1 , 'o');
+        assertEquals(1, blocks);
+    }
+
 
 
 }
