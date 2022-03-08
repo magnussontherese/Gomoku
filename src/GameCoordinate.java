@@ -10,6 +10,12 @@ public class GameCoordinate {
         this.owner = ' ';
     }
 
+    public GameCoordinate(int x, int y, char owner) {
+        this.x = x;
+        this.y = y;
+        this.owner = owner;
+        this.isOccupied = true;
+    }
 
     @Override
     public String toString() {

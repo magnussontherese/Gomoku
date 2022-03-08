@@ -5,7 +5,7 @@ public class GameLoop {
     private ScoreController winController;
     private Agent agent;
     private boolean running = true;
-    private boolean isPlayerTurn = true;
+    private boolean isPlayerTurn = false;
 
 
     public void run(){

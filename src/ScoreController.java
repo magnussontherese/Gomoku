@@ -1,276 +1,103 @@
 public class ScoreController {
 
-    //The control to check a win is managed from a recent move.
-    //Therefore we will only check the GameCoordinates of interest for the win, the coordinates related "for a win" to the current move
-
-
     private final GameBoard gameBoard;
     private static final int winScore = 100000000;
 
-
-    //We need to notice what the winning score for the agent might be
-    private int winningScore= Integer.MAX_VALUE;
+    //TODO: Needs better scoring algoritm.
 
     public ScoreController(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
     }
 
-    //The computer is "white"
-    public double evaluateBoardForUser(boolean userTurn) {
-    //evaluationCount++;
-
-    // Get board score of both players.
-    double userScore = generateScore( true, userTurn);
-    double computerScore = generateScore( false, userTurn);
-
-    if(userScore == 0) userScore = 1.0;
-
-    // Calculate relative score of white against black
-    return computerScore / userScore;
+    public int getBoardScore() {
+        int scoreForComputer = findScore('o');
+        int scoreForHuman  = findScore('x');
+        return scoreForComputer - scoreForHuman;
     }
 
-    private int generateScore(boolean scoreIsForUser, boolean userTurn) {
-        return evalHorizon(scoreIsForUser, userTurn) + evalVertical(scoreIsForUser, userTurn) + evalDiagonal(scoreIsForUser, userTurn);
+    private int findScore(char player) {
+
+        return horizon(player) + vertical(player) + diagonal(player);
     }
 
-
-
-    private int evalDiagonal(boolean isScoreForUser, boolean isUserTurn) {
-
-        int inARow = 0;
-        int blockings = 2;
-        int score = 0;
-        // From bottom-left to top-right diagonally
-        for (int k = 0; k <= 2 * (gameBoard.getDimension() - 1); k++) {
-            int iStart = Math.max(0, k - gameBoard.getDimension() + 1);
-            int iEnd = Math.min(gameBoard.getDimension() - 1, k);
-            for (int i = iStart; i <= iEnd; ++i) {
-                int j = k - i;
-
-                if(gameBoard.getContent()[i][j].getOwner() == (isUserTurn ? 'x' : 'o')) {
-                    inARow++;
-                }
-                else if(!gameBoard.getContent()[i][j].isOccupied()) {
-                    if(inARow > 0) {
-                        blockings--;
-                        score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-                        inARow = 0;
-                        blockings = 1;
-                    }
-                    else {
-                        blockings = 1;
-                    }
-                }
-                else if(inARow > 0) {
-                    score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-                    inARow = 0;
-                    blockings = 2;
-                }
-                else {
-                    blockings = 2;
-                }
-
-            }
-            if(inARow > 0) {
-                score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-
-            }
-            inARow = 0;
-            blockings = 2;
+    public int diagonal(char player) {
+        GameCoordinate[] aDiagonalArray = new GameCoordinate[gameBoard.getDimension()];
+        for(int i = 0; i < gameBoard.getDimension() ; i ++) {
+            aDiagonalArray[i] = gameBoard.getContent()[i][i];
         }
-        // From top-left to bottom-right diagonally
-        for (int k = 1-gameBoard.getDimension(); k < gameBoard.getDimension(); k++) {
-            int iStart = Math.max(0, k);
-            int iEnd = Math.min(gameBoard.getDimension() + k - 1, gameBoard.getDimension()-1);
-            for (int i = iStart; i <= iEnd; ++i) {
-                int j = i - k;
-
-                if(gameBoard.getContent()[i][j].getOwner() == (isUserTurn ? 'x' : 'o')) {
-                    inARow++;
-                }
-                else if(!gameBoard.getContent()[i][j].isOccupied()) {
-                    if(inARow > 0) {
-                        blockings--;
-                        score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-                        inARow = 0;
-                        blockings = 1;
-                    }
-                    else {
-                        blockings = 1;
-                    }
-                }
-                else if(inARow > 0) {
-                    score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-                    inARow = 0;
-                    blockings = 2;
-                }
-                else {
-                    blockings = 2;
-                }
-
-            }
-            if(inARow > 0) {
-                score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-
-            }
-            inARow = 0;
-            blockings = 2;
+        int bestStreakInDiagonalArray = checkStreak(aDiagonalArray, player);
+        int y = gameBoard.getDimension();
+        for (int i = 0; i < gameBoard.getDimension(); i ++) {
+            aDiagonalArray[i] = gameBoard.getContent()[i][--y];
         }
-
-        return score;
+        int bestStreakInAntiDiagonal = checkStreak(aDiagonalArray, player);
+        return Math.max(bestStreakInDiagonalArray, bestStreakInAntiDiagonal);
     }
 
-    private int evalVertical(boolean isScoreForUser, boolean isUserTurn) {
-        int inARow = 0;
-        int blockings = 2;
-        int score = 0;
-        for(int j=0; j<gameBoard.getDimension(); j++) {
-            for(int i=0; i<gameBoard.getDimension(); i++) {
-                if(gameBoard.getContent()[i][j].getOwner() == (isUserTurn ? 'x' : 'o')) {
-                    inARow++;
-                }
-                else if(!gameBoard.getContent()[i][j].isOccupied()) {
-                    if(inARow > 0) {
-                        blockings--;
-                        score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-                        inARow = 0;
-                        blockings = 1;
-                    }
-                    else {
-                        blockings = 1;
-                    }
-                }
-                else if(inARow > 0) {
-                    score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-                    inARow = 0;
-                    blockings = 2;
-                }
-                else {
-                    blockings = 2;
-                }
-            }
-            if(inARow > 0) {
-                score += getInARowScore(inARow, blockings, isScoreForUser == isUserTurn);
-
-            }
-            inARow = 0;
-            blockings = 2;
-
-        }
-        return score;
-    }
-
-    private int evalHorizon(boolean isScoreForUser, boolean isUserTurn) {
-        int inARow = 0;
-        int blocking = 2; //Set to the maximun for starters
-        int score = 0;
-
-        for(int i=0; i<gameBoard.getDimension(); i++) {
-            for(int j=0; j<gameBoard.getContent()[0].length; j++) {
-                if(gameBoard.getContent()[i][j].getOwner() == (isUserTurn ? 'x' : 'o')) {
-                    inARow++; // If we have the coordinate, we should increase the "inARow"
-                } else if(!gameBoard.getContent()[i][j].isOccupied()) {
-                    if(inARow > 0) {
-                        blocking--; //We are on a "streak" since inARow > 0, no blocking
-                        score += getInARowScore(inARow, blocking, isScoreForUser == isUserTurn);
-                        inARow = 0;
-                        blocking = 1;
-                    }
-                    else {
-                        blocking = 1;
-                    }
-                }
-                else if(inARow > 0) {
-                    score += getInARowScore(inARow, blocking, isScoreForUser == isUserTurn);
-                    inARow = 0;
-                    blocking = 2;
-                }
-                else {
-                    blocking = 2;
-                }
-            }
-            if(inARow > 0) {
-                score += getInARowScore(inARow, blocking, isScoreForUser == isUserTurn);
-            }
-            inARow = 0;
-            blocking = 2;
-        }
-        return score;
-    }
-
-
-    private double getInARowScore(int inARow, int blockings, boolean currentTurn) {
-        if(blockings == 2 && inARow < 5) return 0; //We are blocked on both sides, not good, return a low score
-        if (inARow >= 5) { //If we have 5 we are the winners
-            return winScore;
-        } else  { //Otherwise we should investigare the heruistics
-            return countScoreWithVariatingBlockings(inARow, blockings, currentTurn);
-        }
-    }
-
-    //Heuristics based on inARow and the opponents blocking
-    private double countScoreWithVariatingBlockings(int inARow, int blockings, boolean currentTurn) {
-        final int winGuarantee = 1000000;
-
-        switch(inARow) {
-            case 5: {
-                // 5 consecutive wins the game
-                return winScore;
-            }
-            case 4: {
-                // 4 consecutive stones in the user's turn guarantees a win.
-                // (User can win the game by placing the 5th stone after the set)
-                if(currentTurn) return winGuarantee;
-                else {
-                    // Opponent's turn
-                    // If neither side is blocked, 4 consecutive stones guarantees a win in the next turn.
-                    if(blockings == 0) return winGuarantee/4;
-                        // If only a single side is blocked, 4 consecutive stones limits the opponents move
-                        // (Opponent can only place a stone that will block the remaining side, otherwise the game is lost
-                        // in the next turn). So a relatively high score is given for this set.
-                    else return 200;
-                }
-            }
-            case 3: {
-                // 3 consecutive stones
-                if(blockings == 0) {
-                    // Neither side is blocked.
-                    // If it's the current player's turn, a win is guaranteed in the next 2 turns.
-                    // (User places another stone to make the set 4 consecutive, opponent can only block one side)
-                    // However the opponent may win the game in the next turn therefore this score is lower than win
-                    // guaranteed scores but still a very high score.
-                    if(currentTurn) return 50000;
-                        // If it's the opponent's turn, this set forces opponent to block one of the sides of the set.
-                        // So a relatively high score is given for this set.
-                    else return 200;
-                }
-                else {
-                    // One of the sides is blocked.
-                    // Playmaker scores
-                    if(currentTurn) return 10;
-                    else return 5;
-                }
-            }
-            case 2: {
-                // 2 consecutive stones
-                // Playmaker scores
-                if(blockings == 0) {
-                    if(currentTurn) return 7;
-                    else return 5;
-                }
-                else {
-                    return 3;
-                }
-            }
-            case 1: {
-                return 1;
+    public int horizon(char player) {
+        int bestHorizontalStreakInAllBoard = 0;
+        for (int i = 0; i < gameBoard.getDimension(); i++) {
+            int bestStreakInThisHorizonArray = checkStreak(gameBoard.getContent()[i],player);
+            if (bestStreakInThisHorizonArray > bestHorizontalStreakInAllBoard) {
+                bestHorizontalStreakInAllBoard = bestStreakInThisHorizonArray;
             }
         }
-        // More than 5 consecutive stones?
-        return winScore*2;
+        return bestHorizontalStreakInAllBoard;
+    }
+
+    public int vertical(char player) {
+        int bestVerticalStreakInAllBoard = 0;
+        GameCoordinate[] aVerticalArray = new GameCoordinate[gameBoard.getDimension()];
+        for (int j = 0 ; j < gameBoard.getDimension() ;j++){
+            for (int i = 0; i < gameBoard.getDimension(); i++) {
+                aVerticalArray[i] = gameBoard.getContent()[i][j];
+            }
+            int bestStreakInVerticalArray = checkStreak(aVerticalArray, player);
+            if (bestStreakInVerticalArray > bestVerticalStreakInAllBoard) {
+                bestVerticalStreakInAllBoard = bestStreakInVerticalArray;
+            }
+        }
+        return bestVerticalStreakInAllBoard;
+    }
+
+    public int checkStreak(GameCoordinate[] gameCoordinates, char player) { //Får in en array från spelplanen att kontrollera och betygsätta utifrån en player
+        //Det kan vara en diagonal, antidiagonal, verikal eller horisontell
+        int aStreakInThisArray =  0;
+        int bestStreakInThisArray= 0;
+        int enemiesInThisStreak = 0;
+        for (int i = 0; i < gameCoordinates.length; i++) {
+            if(gameCoordinates[i].getOwner() == player) {
+                aStreakInThisArray++;
+            } else if (gameCoordinates[i].isOccupied() && gameCoordinates[i].getOwner() != player && aStreakInThisArray > 0){ // Vi är öppna eller blockerade
+                enemiesInThisStreak++;
+                aStreakInThisArray = 0;
+            } else {
+                aStreakInThisArray = 0;
+            }
+            if (aStreakInThisArray > bestStreakInThisArray) {
+                bestStreakInThisArray = aStreakInThisArray;
+            }
+        }
+        return scoreForThisStreakCount(bestStreakInThisArray, enemiesInThisStreak);
     }
 
 
+    private int scoreForThisStreakCount(int bestStreakInThisArray, int enemiesInStreak) {
+        int leftToWin = gameBoard.getWincount() - bestStreakInThisArray;
+        if (enemiesInStreak == 0 && leftToWin == 0) {
+            return bestStreakInThisArray*100000;
+        }
+        if (enemiesInStreak == 0 && leftToWin == 1) {
+            return bestStreakInThisArray*10000;
+        }
+        if (enemiesInStreak == 0 && leftToWin == 2) {
+            return bestStreakInThisArray*500;
+        }
+        if (enemiesInStreak == 0 && leftToWin == 3) {
+            return bestStreakInThisArray*10;
+        }
+        return bestStreakInThisArray;
+    }
 
 
     //Returns a boolean representing the win for a change at a game coordinate. The new owner of the game coordinate can be the winner.
@@ -333,7 +160,7 @@ public class ScoreController {
     }
 
     //To genereate the scores for decisionmaking, needs change.
-    public int checkWin2(GameCoordinate move, int depth) {
+    public int checkWin2(GameCoordinate move) {
         char winner = Character.MIN_VALUE;
         if (checkColumnWin(move)) {
             winner = move.getOwner();
@@ -345,10 +172,10 @@ public class ScoreController {
             winner = move.getOwner();
         }
 
-        return validateScore(winner, depth);
+        return validateScore(winner);
     }
 
-    private int validateScore(char winner, int depth) {
+    private int validateScore(char winner) {
         if (winner == Character.MIN_VALUE && gameBoard.getEmpties().size() == 0) {
             return 0;
         } else if (winner == 'o') {
