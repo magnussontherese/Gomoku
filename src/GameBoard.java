@@ -37,13 +37,15 @@ public class GameBoard {
 
     public void print() {
         System.out.println("GameBoard: ");
+        System.out.println("  0 1 2 3 4 (X)");
         for (int i = 0; i < dimension; i++) {
-            System.out.print("|");
+            System.out.print(i +"|");
             for (int j = 0; j < dimension; j++) {
                 System.out.print(content[i][j]);
                 System.out.print("|");
             }
             System.out.println("");
+
         }
     }
 

@@ -9,35 +9,42 @@ public class ScoreController {
         this.gameBoard = gameBoard;
     }
 
-    public int getBoardScore() {
-        int scoreForComputer = findScore('o');
-        int scoreForHuman  = findScore('x');
+    public int getBoardScore(boolean isComputerTurn) {
+        int scoreForComputer = 0;
+        int scoreForHuman = 0;
+        if (isComputerTurn) {
+             scoreForHuman  = findScore('x', false);
+             scoreForComputer = findScore('o', true);
+        } else {
+             scoreForHuman = findScore('x', true);
+             scoreForComputer = findScore('o', false);
+        }
         return scoreForComputer - scoreForHuman;
     }
 
-    private int findScore(char player) {
+    private int findScore(char player, boolean isMyTurn) {
 
-        return horizon(player) + vertical(player) + diagonal(player);
+        return horizon(player, isMyTurn) + vertical(player,isMyTurn ) + diagonal(player,isMyTurn );
     }
 
-    public int diagonal(char player) {
+    public int diagonal(char player, boolean isMyTurn) {
         GameCoordinate[] aDiagonalArray = new GameCoordinate[gameBoard.getDimension()];
         for(int i = 0; i < gameBoard.getDimension() ; i ++) {
             aDiagonalArray[i] = gameBoard.getContent()[i][i];
         }
-        int bestStreakInDiagonalArray = checkStreak(aDiagonalArray, player);
+        int bestStreakInDiagonalArray = checkStreak(aDiagonalArray, player, isMyTurn);
         int y = gameBoard.getDimension();
         for (int i = 0; i < gameBoard.getDimension(); i ++) {
             aDiagonalArray[i] = gameBoard.getContent()[i][--y];
         }
-        int bestStreakInAntiDiagonal = checkStreak(aDiagonalArray, player);
+        int bestStreakInAntiDiagonal = checkStreak(aDiagonalArray, player, isMyTurn);
         return Math.max(bestStreakInDiagonalArray, bestStreakInAntiDiagonal);
     }
 
-    public int horizon(char player) {
+    public int horizon(char player, boolean isMyTurn) {
         int bestHorizontalStreakInAllBoard = 0;
         for (int i = 0; i < gameBoard.getDimension(); i++) {
-            int bestStreakInThisHorizonArray = checkStreak(gameBoard.getContent()[i],player);
+            int bestStreakInThisHorizonArray = checkStreak(gameBoard.getContent()[i],player, isMyTurn);
             if (bestStreakInThisHorizonArray > bestHorizontalStreakInAllBoard) {
                 bestHorizontalStreakInAllBoard = bestStreakInThisHorizonArray;
             }
@@ -45,14 +52,14 @@ public class ScoreController {
         return bestHorizontalStreakInAllBoard;
     }
 
-    public int vertical(char player) {
+    public int vertical(char player, boolean isMyTurn) {
         int bestVerticalStreakInAllBoard = 0;
         GameCoordinate[] aVerticalArray = new GameCoordinate[gameBoard.getDimension()];
         for (int j = 0 ; j < gameBoard.getDimension() ;j++){
             for (int i = 0; i < gameBoard.getDimension(); i++) {
                 aVerticalArray[i] = gameBoard.getContent()[i][j];
             }
-            int bestStreakInVerticalArray = checkStreak(aVerticalArray, player);
+            int bestStreakInVerticalArray = checkStreak(aVerticalArray, player,isMyTurn);
             if (bestStreakInVerticalArray > bestVerticalStreakInAllBoard) {
                 bestVerticalStreakInAllBoard = bestStreakInVerticalArray;
             }
@@ -60,7 +67,7 @@ public class ScoreController {
         return bestVerticalStreakInAllBoard;
     }
 
-    public int checkStreak(GameCoordinate[] gameCoordinates, char player) { //Får in en array från spelplanen att kontrollera och betygsätta utifrån en player
+    public int checkStreak(GameCoordinate[] gameCoordinates, char player, boolean isMyTurn) { //Får in en array från spelplanen att kontrollera och betygsätta utifrån en player
         //Det kan vara en diagonal, antidiagonal, verikal eller horisontell
         int aStreakInThisArray =  0;
         int bestStreakInThisArray= 0;
@@ -79,54 +86,94 @@ public class ScoreController {
             }
         }
         if (bestStreakInThisArray > 0) {
-            int enemies = findBlockings(gameCoordinates, bestStreakInThisArray, startForStreak, player);
-            return scoreForThisStreakCount(bestStreakInThisArray, enemies);
+            int opeEnds = findOpenEnds(gameCoordinates, bestStreakInThisArray, startForStreak, player);
+            boolean hasEnemy = hasEnemy(gameCoordinates, player);
+            return scoreForThisStreakCount(bestStreakInThisArray, opeEnds, isMyTurn, hasEnemy);
         }
         return 0;
     }
 
-    public int findBlockings(GameCoordinate[] gameCoordinates, int bestStreakInThisArray, int startForStreak, char player) {
+    private boolean hasEnemy(GameCoordinate[] gameCoordinates, char player) {
+        for (int i = 0 ; i < gameBoard.getDimension(); i++) {
+            if (gameCoordinates[i].getOwner() != player && gameCoordinates[i].isOccupied())
+                return true;
+        }
+        return false;
+    }
+
+    public int findOpenEnds(GameCoordinate[] gameCoordinates, int bestStreakInThisArray, int startForStreak, char player) {
         int indexBeforeFirstInStreak = startForStreak - 1;
         int indexAfterLastInStreak = (startForStreak + bestStreakInThisArray);
-        int blockings = 0; //Blockings can be either a enemie or a wall
+        int openEnds = 2; //Blockings can be either a enemie or a wall
         if (indexBeforeFirstInStreak < 0) { //This value will genereate indexOutOfBounds
-            blockings++; //The index before the streak is a wall, we are blocked by wall, closed end to left
+            openEnds--; //The index before the streak is a wall, we are blocked by wall, closed end to left
         } else {
             if (gameCoordinates[indexBeforeFirstInStreak].isOccupied() && gameCoordinates[indexBeforeFirstInStreak].getOwner() != player) {
-                blockings++;
+                openEnds--;
             }
         }
         if (indexAfterLastInStreak >= gameBoard.getDimension()){ //This value will genereate indexOutOfBounds
-            blockings++;//The index after  the streak is a wall, we are blocked by wall, closed end to right
+            openEnds--;//The index after  the streak is a wall, we are blocked by wall, closed end to right
         } else {
             if (gameCoordinates[indexAfterLastInStreak].isOccupied() && gameCoordinates[indexAfterLastInStreak].getOwner() != player) {
-                blockings++;
+                openEnds--;
             }
         }
-        return blockings;
+        return openEnds;
     }
 
 
-    private int scoreForThisStreakCount(int bestStreakInThisArray, int blockings) {
+    private int scoreForThisStreakCount(int bestStreakInThisArray, int openEnds,  boolean isMyTurn, boolean hasEnemy) {
         int leftToWin = gameBoard.getWincount() - bestStreakInThisArray;
-        if (leftToWin == 0) {
-            return bestStreakInThisArray*100000;
-        }
-        if (blockings == 2) { //We are closed on both sides, worthless streak
+        if ((openEnds == 0 && bestStreakInThisArray > 0) || hasEnemy) {//We are closed on both sides, worthless streak
             return 0;
         }
-        if (leftToWin == 1) { //One blocking on four in streak means open right side or leftside
-            return bestStreakInThisArray*10000;
+        if (leftToWin == 0) { //This is a win
+            return 20000000;
         }
 
-        if (leftToWin == 2) { //One blocking on four in streak means open right side or leftside
-            if (blockings == 1){
-                return bestStreakInThisArray*500;
-            } else {
-                return bestStreakInThisArray*1000;
+        if (leftToWin == 1) {
+            if (openEnds == 1) {
+                if (isMyTurn) return 1000000;
+                return 50;
+            } if (openEnds == 2) {
+                if (isMyTurn) return 1000000;
+                return 500000;
             }
         }
-        return bestStreakInThisArray;
+
+        if(leftToWin == 2) {
+            if (openEnds == 1) {
+                if (isMyTurn) {
+                    return 12;
+                } else {
+                    return 5;
+                }
+            } else if(openEnds == 2) {
+                if (isMyTurn)
+                    return 10000;
+                return 50;
+            }
+        }
+
+
+        if(leftToWin == 3) {
+            if (openEnds == 2) {
+                return 10;
+            } else if(openEnds == 1) {
+                return 3;
+            }
+        }
+
+        if(leftToWin == 4) {
+            if (openEnds == 2) {
+                return 2;
+            } else if(openEnds == 1) {
+                return 1;
+            }
+        }
+
+        return bestStreakInThisArray*2;
     }
 
 

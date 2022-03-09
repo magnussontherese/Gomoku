@@ -4,7 +4,8 @@ import java.util.Random;
 public class Agent {
     private MiniMaxAssistant miniMaxAssistant;
     private char myBrick = 'o';
-    private int depthForAgent = 6;
+    private int depthForAgent = 5;
+    private boolean isFirstGo = true;
 
     public Agent(GameBoard board) {
         this.miniMaxAssistant = new MiniMaxAssistant(board);
@@ -21,6 +22,7 @@ public class Agent {
         int bestMoveScore = Integer.MIN_VALUE;
         GameCoordinate bestMove = null;
         HashSet<GameCoordinate> empties = board.getEmpties();
+
         for (GameCoordinate thisCoor : empties) {
             board.placeBrick(thisCoor, myBrick);
             currentMoveScore = miniMaxAssistant.miniMaxSearch(board, depthForAgent, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -31,6 +33,11 @@ public class Agent {
             }
         }
 
+        if (isFirstGo) {
+            isFirstGo = false;
+            setDepthForAgent(5);
+        }
+        System.out.println("Score chosen: "+ bestMoveScore);
         return bestMove;
     }
 
@@ -48,5 +55,7 @@ public class Agent {
         return current;
     }
 
-
+    public void setDepthForAgent(int depthForAgent) {
+        this.depthForAgent = depthForAgent;
+    }
 }

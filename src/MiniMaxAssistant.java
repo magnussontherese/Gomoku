@@ -38,35 +38,38 @@ public class MiniMaxAssistant {
         counter ++;
         HashSet<GameCoordinate> available = board.getEmpties();
         if (depth == 0 || available.size() == 0) {
-            return controller.getBoardScore();
+            int scoreToReturn = controller.getBoardScore(isMaximizing);
+            return scoreToReturn;
         }
-        int bestScore;
+        int score;
         if (isMaximizing) {
-            bestScore = Integer.MIN_VALUE;
+            score = Integer.MIN_VALUE;
             for (GameCoordinate aFreeSpot : available) {
                 board.placeBrick(aFreeSpot, 'o');
-                int currentScore = miniMaxSearch(board, depth - 1, false, alpha, beta);
+                score = miniMaxSearch(board, depth - 1, false, alpha, beta);
                 board.undoMove(aFreeSpot);
-                bestScore = Math.max(currentScore, bestScore);
-                alpha = Math.max(alpha, bestScore);
-                if (alpha >= beta) {
-                    return bestScore;//We prune in here
+                //score = Math.max(currentScore, score);
+                if (score >= beta) {
+                    break;//We prune in here
                 }
+                alpha = Math.max(alpha, score);
             }
+            return score;
         } else {
-            bestScore = Integer.MAX_VALUE;
+            score = Integer.MAX_VALUE;
             for (GameCoordinate  aFreeSpot: available) {
                     board.placeBrick(aFreeSpot, 'x');
-                    int currentScore = miniMaxSearch(board, depth - 1, true, alpha, beta);
+                    score = miniMaxSearch(board, depth - 1, true, alpha, beta);
                     board.undoMove(aFreeSpot);
-                    bestScore = Math.min(currentScore, bestScore);
-                    beta = Math.min(beta, bestScore);
-                    if (beta <= alpha) {
-                        return bestScore; //We prune in here
+                    //score = Math.min(currentScore, score);
+                    if (score <= alpha) {
+                       break;//We prune in here
                     }
-                }
+                    beta = Math.min(beta, score);
+            }
+            return score;
         }
-        return bestScore;
+        //return score;
     }
 
     private GameCoordinate getRandomMove(GameBoard board) {

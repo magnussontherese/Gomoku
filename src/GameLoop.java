@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class GameLoop {
     private GameBoard board;
-    private ScoreController winController;
+    private ScoreController scoreController;
     private Agent agent;
     private boolean running = true;
     private boolean isPlayerTurn = false;
@@ -16,7 +16,7 @@ public class GameLoop {
         int wincount = in.nextInt();
         board = new GameBoard(dim, wincount);
         agent = new Agent(board);
-        winController = new ScoreController(board);
+        scoreController = new ScoreController(board);
         while (running && board.getEmpties().size() != 0) {
             GameCoordinate nextMove;
             if (isPlayerTurn) {
@@ -29,7 +29,7 @@ public class GameLoop {
                 System.out.println("Finding best move took: " + (endTime - startTime) + " milliseconds");
             }
             board.print();
-            char winner = winController.checkWin(nextMove);
+            char winner = scoreController.checkWin(nextMove);
             if(winner != Character.MIN_VALUE) {
                 System.out.println(winner + " is the winner");
                 break;
@@ -55,8 +55,8 @@ public class GameLoop {
 
     private GameCoordinate makeMove(String playerMove) {
         String[] chopped = playerMove.split(",");
-        int x = Integer.parseInt(chopped[0]);
-        int y = Integer.parseInt(chopped[1]);
+        int y = Integer.parseInt(chopped[0]);
+        int x = Integer.parseInt(chopped[1]);
         GameCoordinate move = board.getCoordinate(x, y);
         return board.placeBrick(move, 'x');
     }
