@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class GameLoop {
     private GameBoard board;
-    private ScoreController scoreController;
+    private SimpleStructureScoreController scoreController;
     private Agent agent;
     private boolean running = true;
     private boolean isPlayerTurn = false;
@@ -10,40 +10,56 @@ public class GameLoop {
 
     public void run(){
         Scanner in = new Scanner(System.in);
+        initialiseGameBoard(in);
+        while (running) {
+            if (isPlayerTurn) {
+                String moveString = collectPlayerMove(in);//The human player makes a move
+                makeMove(moveString);
+            } else {
+                long startTime = System.currentTimeMillis();
+                computerPlay(); //The agent will play
+                long endTime = System.currentTimeMillis();
+                System.out.println("Finding best move took: " + (endTime - startTime) + " milliseconds");
+            }
+            board.print();
+            System.out.println("BOARDSCORE:" + scoreController.getBoardScore(!isPlayerTurn));
+            if (handleWinners()){
+                break;
+            }
+        }
+    }
+
+    private void initialiseGameBoard(Scanner in) {
         System.out.println("Welcome to the komoku board game! Please select your dimension (>= 5)");
         int dim = in.nextInt();
         System.out.println("How many in a row to win?");
         int wincount = in.nextInt();
         board = new GameBoard(dim, wincount);
         agent = new Agent(board);
-        scoreController = new ScoreController(board);
-        while (running && board.getEmpties().size() != 0) {
-            GameCoordinate nextMove;
-            if (isPlayerTurn) {
-                String moveString = collectPlayerMove(in);//The human player makes a move
-                nextMove = makeMove(moveString);
-            } else {
-                long startTime = System.currentTimeMillis();
-                nextMove = computerPlay(); //The agent will play
-                long endTime = System.currentTimeMillis();
-                System.out.println("Finding best move took: " + (endTime - startTime) + " milliseconds");
-            }
-            board.print();
-            char winner = scoreController.checkWin(nextMove);
-            if(winner != Character.MIN_VALUE) {
-                System.out.println(winner + " is the winner");
-                break;
-            }
+        scoreController = new SimpleStructureScoreController(board);
+    }
+
+    private boolean handleWinners() {
+        int winner = scoreController.getBoardScore(!isPlayerTurn);
+        if (winner == SimpleStructureScoreController.WIN_SCORE){
+            System.out.println('o' + " is the winner");
+            return true;
+        }
+        if (winner == -SimpleStructureScoreController.WIN_SCORE){
+            System.out.println('x' + " is the winner");
+            return true;
         }
         if (board.getEmpties().size() == 0) {
             System.out.println("It's a tie");
+            return true;
         }
+        return false;
     }
 
     private String collectPlayerMove(Scanner in) {
         System.out.println("Place your brick (x, y)");
         String playerMove = "";
-        playerMove = in.next(); //We are always thinking that the human player chooses a free space and correct values :)
+        playerMove = in.next();
         isPlayerTurn = false;
         return playerMove;
     }
@@ -58,6 +74,8 @@ public class GameLoop {
         int y = Integer.parseInt(chopped[0]);
         int x = Integer.parseInt(chopped[1]);
         GameCoordinate move = board.getCoordinate(x, y);
+        System.out.println("Placed; x = " + move.getX() + " y = " + move.getY());
+
         return board.placeBrick(move, 'x');
     }
 }

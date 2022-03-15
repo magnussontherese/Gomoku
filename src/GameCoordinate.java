@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class GameCoordinate {
     private  int x;
     private  int y;
@@ -19,7 +21,7 @@ public class GameCoordinate {
 
     @Override
     public String toString() {
-        return owner + "";
+        return  x + "," + y;
     }
 
     public void setOwner(char owner) {
@@ -47,4 +49,18 @@ public class GameCoordinate {
     public char getOwner() {
         return owner;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameCoordinate that = (GameCoordinate) o;
+        return x == that.x && y == that.y && isOccupied == that.isOccupied && owner == that.owner;
+    }
+
+    @Override
+    public int hashCode() {
+        return x*3 + y*5;
+    }
 }
+
