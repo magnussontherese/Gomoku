@@ -56,7 +56,11 @@ public class GameBoard {
 
     public void print() {
         System.out.println("GameBoard: ");
-        System.out.println("  0 1 2 3 4 (X)");
+        System.out.print("  ");
+        for (int i = 0; i < dimension; i++) {
+            System.out.print(i + " ");
+        }
+        System.out.println("");
         for (int i = 0; i < dimension; i++) {
             System.out.print(i +"|");
             for (int j = 0; j < dimension; j++) {
@@ -64,7 +68,6 @@ public class GameBoard {
                 System.out.print("|");
             }
             System.out.println("");
-
         }
     }
 
@@ -96,6 +99,10 @@ public class GameBoard {
     }
 
     public GameCoordinate getCoordinate(int x, int y){
+        if (x < 0 || x > dimension -1)
+            return null;
+        if (y < 0 || y > dimension -1)
+            return null;
         return content[x][y];
     }
 
@@ -121,16 +128,6 @@ public class GameBoard {
             return getRelevant();
         }
 
-    }
-
-    public HashSet<GameCoordinate> getFree() {
-        HashSet<GameCoordinate> empty = new HashSet<>();
-        for (int i = 0 ; i < dimension; i ++){
-            for (int j = 0; j < dimension; j++) {
-                if (!content[i][j].isOccupied()) empty.add(content[i][j]);
-            }
-        }
-        return empty;
     }
 
     public HashSet<GameCoordinate> getRelevant() {
@@ -166,5 +163,17 @@ public class GameBoard {
 
     public HashSet<GameCoordinate> getOwnedByHuman() {
         return ownedByHuman;
+    }
+
+
+
+    public HashSet<GameCoordinate> getFree() {
+        HashSet<GameCoordinate> empty = new HashSet<>();
+        for (int i = 0 ; i < dimension; i ++){
+            for (int j = 0; j < dimension; j++) {
+                if (!content[i][j].isOccupied()) empty.add(content[i][j]);
+            }
+        }
+        return empty;
     }
 }

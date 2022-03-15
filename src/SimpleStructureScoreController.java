@@ -3,7 +3,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class SimpleStructureScoreController implements  ScoreController{
-
     private GameBoard gameBoard;
     public static final int WIN_SCORE = 1000000;
 
@@ -64,15 +63,16 @@ public class SimpleStructureScoreController implements  ScoreController{
             coordinateByY.putIfAbsent(gc.getY(), forThisY);
         }
         for (Integer i : coordinateByY.keySet()) {
-            int streakScore = evaluateEnemy(coordinateByY.get(i));
-            if(streakScore > bestStreak)
-                bestStreak = streakScore;
-
+            //int currentStreakScore = evaluateVertical(coordinateByY.get(i), i);
+            int currentStreakScore = evaluateEnemy(coordinateByY.get(i));
+            if (currentStreakScore > bestStreak) {
+                bestStreak = currentStreakScore;
+            }
         }
         return bestStreak;
     }
 
-    public int evaluateEnemy(HashSet<GameCoordinate> gameCoordinates) {
+       public int evaluateEnemy(HashSet<GameCoordinate> gameCoordinates) {
         char player = ' ';
         int streakValue = gameCoordinates.size();
         for (GameCoordinate gc : gameCoordinates) {
@@ -96,6 +96,44 @@ public class SimpleStructureScoreController implements  ScoreController{
         }
         return streakValue;
     }
+
+    private int evaluateVertical(HashSet<GameCoordinate> gameCoordinates, int y) {
+        ArrayList<GameCoordinate> verticalRow = new ArrayList<>();
+        for (GameCoordinate gc : gameCoordinates) {
+            verticalRow.set(gc.getX(), gc);
+        }
+        ArrayList<GameCoordinate> inARow = new ArrayList<>();
+        ArrayList<GameCoordinate> bestInARow = new ArrayList<>();
+        for (GameCoordinate gameCoordinate : verticalRow) {
+            if(gameCoordinate == null && inARow.size() == 0){
+                inARow.add(gameCoordinate);
+            } else if (gameCoordinate == null && inARow.size() > 0) { //We are no longer on a streak, save the sofar streak.
+                if (inARow.size() > bestInARow.size())
+                    bestInARow = inARow;
+                inARow.clear();
+            }  else {
+                inARow.add(gameCoordinate);
+            }
+        }
+
+
+        // --o--oo--o
+
+        int blockers = 0;
+        for (GameCoordinate gc : gameCoordinates){
+            GameCoordinate upper = gameBoard.getCoordinate(gc.getX() - 1, gc.getY());
+            GameCoordinate lower = gameBoard.getCoordinate(gc.getX() + 1, gc.getY());
+            if (upper == null) blockers++; //blocked by wall
+            if(lower == null) blockers++;
+            if (!(upper == null) && upper.isOccupied() && !(gameCoordinates.contains(upper))) blockers++; //blocked by enemy
+            if (!(lower == null) && lower.isOccupied() && !(gameCoordinates.contains(lower))) blockers++;
+            if (blockers == 2) return 0;
+        }
+        if (blockers == 1) return gameCoordinates.size()-2;
+        return gameCoordinates.size();
+    }
+
+
 
 
     private int evaluateVertStreak(HashMap<Integer, HashSet<GameCoordinate>> coordinateByY) {
@@ -133,7 +171,7 @@ public class SimpleStructureScoreController implements  ScoreController{
             coordinateByX.putIfAbsent(gc.getX(), forThisX);
         }
         for (Integer i : coordinateByX.keySet()) {
-            int streakScore = coordinateByX.get(i).size();
+            int streakScore = evaluateHorizontalStreak(coordinateByX.get(i));
             if(streakScore > bestStreak)
                 bestStreak = streakScore;
 
@@ -141,6 +179,20 @@ public class SimpleStructureScoreController implements  ScoreController{
         return bestStreak;
     }
 
+    private int evaluateHorizontalStreak(HashSet<GameCoordinate> gameCoordinates) {
+        int blockers = 0;
+        for (GameCoordinate gc : gameCoordinates){
+            GameCoordinate left = gameBoard.getCoordinate(gc.getX(), gc.getY() -1);
+            GameCoordinate right = gameBoard.getCoordinate(gc.getX(),gc.getY() + 1);
+            if (left == null) blockers++; //blocked by wall
+            if(right == null) blockers++;
+            if (!(left == null) && left.isOccupied() && !(gameCoordinates.contains(left))) blockers++; //blocked by enemy
+            if (!(right == null) && right.isOccupied() && !(gameCoordinates.contains(right))) blockers++;
+            if (blockers == 2) return 0;
+        }
+        if (blockers == 1) return gameCoordinates.size()-2;
+        return gameCoordinates.size();
+    }
 
 
     public int checkStreak(GameCoordinate[] gameCoordinates, char player, boolean isMyTurn) { //Får in en array från spelplanen att kontrollera och betygsätta utifrån en player
@@ -295,5 +347,8 @@ public class SimpleStructureScoreController implements  ScoreController{
 
 
 }
+
+
+
 
 

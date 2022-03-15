@@ -210,7 +210,6 @@ class GameLoopTest {
         hash.add(new GameCoordinate(0,2, 'o'));
         hash.add(new GameCoordinate(0,1, 'o'));
         hash.add(new GameCoordinate(0,0, 'o'));
-
         hash.add(new GameCoordinate(0,3, 'x'));
 
     }

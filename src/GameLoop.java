@@ -16,13 +16,9 @@ public class GameLoop {
                 String moveString = collectPlayerMove(in);//The human player makes a move
                 makeMove(moveString);
             } else {
-                long startTime = System.currentTimeMillis();
                 computerPlay(); //The agent will play
-                long endTime = System.currentTimeMillis();
-                System.out.println("Finding best move took: " + (endTime - startTime) + " milliseconds");
             }
             board.print();
-            System.out.println("BOARDSCORE:" + scoreController.getBoardScore(!isPlayerTurn));
             if (handleWinners()){
                 break;
             }
