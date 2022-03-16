@@ -55,7 +55,7 @@ public class GameCoordinate {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GameCoordinate that = (GameCoordinate) o;
-        return x == that.x && y == that.y && isOccupied == that.isOccupied && owner == that.owner;
+        return x == that.x && y == that.y;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class GameLoop {
             } else {
                 computerPlay(); //The agent will play
             }
-            board.print();
+            board.printAvailable();
             if (handleWinners()){
                 break;
             }
@@ -62,7 +62,7 @@ public class GameLoop {
 
     private GameCoordinate computerPlay()  {
         isPlayerTurn = true;
-        return agent.move(board); //The responability passed to agent, should make a competative move
+        return agent.move(); //The responability passed to agent, should make a competative move
     }
 
     private GameCoordinate makeMove(String playerMove) {

@@ -3,7 +3,7 @@ import java.util.Random;
 
 public class MiniMaxAssistant {
     ScoreController controller;
-    GameBoard board;
+    GameBoard gameBoard;
 
     private int counter = 0; //Räknare för testning av antal "varv" i miniMax
 
@@ -13,7 +13,6 @@ public class MiniMaxAssistant {
 
     public MiniMaxAssistant(GameBoard board) {
         controller = (board.getDimension() == board.getWincount())? new SimpleStructureScoreController(board): new AdvancedStructureScoreController(board);
-        this.board = board;
     }
 
 

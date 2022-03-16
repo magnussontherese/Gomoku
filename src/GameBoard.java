@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class GameBoard {
     public final int dimension;
-    private int wincount;
+    private final int wincount;
     private GameCoordinate[][] content;
     private HashSet<GameCoordinate> ownedByComputer;
     private HashSet<GameCoordinate> ownedByHuman;
@@ -21,14 +21,28 @@ public class GameBoard {
         available = new HashSet<>();
         initialise();
     }
+
     public GameBoard(GameBoard other) {
         this.dimension = other.getDimension();
         this.wincount = other.wincount;
         content = new GameCoordinate[dimension][dimension];
-        ownedByComputer = new HashSet<>(other.ownedByComputer);
-        ownedByHuman = new HashSet<>(other.ownedByHuman);
+        ownedByComputer = new HashSet<>();
+        ownedByComputer.addAll(other.getOwnedByComputer());
+        ownedByHuman = new HashSet<>();
+        ownedByHuman.addAll(other.getOwnedByHuman());
         available = new HashSet<>();
+        available.addAll(other.getFree());
         initialise();
+        initialiseFromOther(other);
+    }
+
+    private void initialiseFromOther(GameBoard other) {
+        for (GameCoordinate gc : ownedByHuman) {
+            placeBrick(gc, 'x');
+        }
+        for (GameCoordinate gc: ownedByComputer) {
+            placeBrick(gc, 'o');
+        }
     }
 
     public GameBoard(int d, int wincount) {
@@ -71,11 +85,25 @@ public class GameBoard {
         }
     }
 
+    public void printAvailable() {
+        HashSet<GameCoordinate> allRelevant = getAllToTry();
+        for (GameCoordinate gc: allRelevant) {
+            gc.setOwner('.');
+        }
+        print();
+        for (GameCoordinate gc: allRelevant) {
+            gc.removeOwner();
+        }
+    }
+
     public GameCoordinate placeBrick(GameCoordinate gameCoordinate, char playerBrick) {
         content[gameCoordinate.getX()][gameCoordinate.getY()] = gameCoordinate;
         gameCoordinate.setOwner(playerBrick);
-        if(playerBrick == 'o') ownedByComputer.add(gameCoordinate);
-        if (playerBrick == 'x') ownedByHuman.add(gameCoordinate);
+        if(playerBrick == 'o'){
+            ownedByComputer.add(gameCoordinate);
+        } else if(playerBrick == 'x') {
+            ownedByHuman.add(gameCoordinate);
+        }
         available.remove(gameCoordinate);
         return gameCoordinate;
     }
@@ -122,17 +150,13 @@ public class GameBoard {
     }
 
     public HashSet<GameCoordinate> getAllToTry() {
-        if (wincount == dimension) {
-            return getFree();
-        } else {
-            return getRelevant();
-        }
-
+        return getRelevant();
     }
 
     public HashSet<GameCoordinate> getRelevant() {
         HashSet<GameCoordinate> relevant = new HashSet<>();
-        HashSet <GameCoordinate> occupied = new HashSet<>(ownedByHuman);
+        HashSet <GameCoordinate> occupied = new HashSet<>();
+        occupied.addAll(ownedByHuman);
         occupied.addAll(ownedByComputer);
         for (GameCoordinate gc : occupied) {
             relevant.addAll(getRelevantFromGameCoordinate(gc));
@@ -142,20 +166,31 @@ public class GameBoard {
 
     private Collection<GameCoordinate> getRelevantFromGameCoordinate(GameCoordinate gc) {
         HashSet <GameCoordinate> toReturn = new HashSet<>();
+        GameCoordinate upper = getCoordinate(gc.getX() , gc.getY() + 1);
+        GameCoordinate lower = getCoordinate(gc.getX() , gc.getY() - 1);
 
-        if (available.contains(new GameCoordinate(gc.getX() , gc.getY() + 1))) toReturn.add(content[gc.getX()] [gc.getY() +1]);
-        if (available.contains(new GameCoordinate(gc.getX() , gc.getY() - 1))) toReturn.add(content[gc.getX()] [gc.getY() -1]);
+        GameCoordinate left = getCoordinate(gc.getX() +1 , gc.getY());
+        GameCoordinate right = getCoordinate(gc.getX()-1 , gc.getY());
 
-        if (available.contains(new GameCoordinate(gc.getX() -1 , gc.getY() - 1)))toReturn.add(content[gc.getX() -1] [gc.getY() -1]);
-        if (available.contains(new GameCoordinate(gc.getX() -1 , gc.getY() + 1))) toReturn.add(content[gc.getX() -1] [gc.getY() +1]);
-        if (available.contains(new GameCoordinate(gc.getX() -1 , gc.getY())))toReturn.add(content[gc.getX() -1] [gc.getY()]);
+        GameCoordinate leftTop = getCoordinate(gc.getX()-1 , gc.getY()-1);
+        GameCoordinate rightTop = getCoordinate(gc.getX()+1 , gc.getY()-1);
 
-        if (available.contains(new GameCoordinate(gc.getX() +1 , gc.getY() - 1)))toReturn.add(content[gc.getX() +1] [gc.getY() -1]);
-        if (available.contains(new GameCoordinate(gc.getX() +1 , gc.getY() + 1)))toReturn.add(content[gc.getX() +1] [gc.getY() +1]);
-        if (available.contains(new GameCoordinate(gc.getX() +1 , gc.getY())))toReturn.add(content[gc.getX() +1] [gc.getY()]);
+        GameCoordinate leftBottom = getCoordinate(gc.getX()-1 , gc.getY()+1);
+        GameCoordinate rightBottom = getCoordinate(gc.getX()+1 , gc.getY()+1);
+
+        if (left != null && !left.isOccupied()) toReturn.add(left);
+        if (right != null && !right.isOccupied()) toReturn.add(right);
+        if (upper != null && !upper.isOccupied()) toReturn.add(upper);
+        if (lower != null && !lower.isOccupied()) toReturn.add(lower);
+        if (leftTop != null && !leftTop.isOccupied()) toReturn.add(leftTop);
+        if (rightTop != null && !rightTop.isOccupied()) toReturn.add(rightTop);
+        if (leftBottom != null && !leftBottom.isOccupied()) toReturn.add(leftBottom);
+        if (rightBottom != null && !rightBottom.isOccupied()) toReturn.add(rightBottom);
 
         return toReturn;
     }
+
+
 
     public HashSet<GameCoordinate> getOwnedByComputer() {
         return ownedByComputer ;
@@ -171,7 +206,8 @@ public class GameBoard {
         HashSet<GameCoordinate> empty = new HashSet<>();
         for (int i = 0 ; i < dimension; i ++){
             for (int j = 0; j < dimension; j++) {
-                if (!content[i][j].isOccupied()) empty.add(content[i][j]);
+                if (!content[i][j].isOccupied())
+                    empty.add(content[i][j]);
             }
         }
         return empty;
